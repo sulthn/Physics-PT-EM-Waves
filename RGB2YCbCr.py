@@ -1,6 +1,6 @@
 """
-Converts RGB to Y'CbCr according to ITU-T T.871.
-https://www.itu.int/rec/T-REC-T.871
+    Converts RGB to Y'CbCr according to ITU-T T.871.
+    https://www.itu.int/rec/T-REC-T.871
 """
 
 import numpy as np
