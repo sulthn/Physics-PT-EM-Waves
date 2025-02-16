@@ -41,7 +41,8 @@ def convert(img, a: int, b: int):
         b: number of chrominance samples in the second row of “J” pixels.
     
     Returns:
-        Converted 3-dimensional numpy array with shape (H, W, 3)
+        A tuple consisting of the size in bytes of the image before upsampling
+        and a converted 3-dimensional numpy array with shape (H, W, 3)
     """
     
     # A couple checks...
@@ -57,6 +58,8 @@ def convert(img, a: int, b: int):
 
     if a == 3 or b == 3:
         raise(SamplingError)
+    
+    converted_bytes = 0
     
     # Odd sized images create problems, round the nearest odd number to even.
     img_size = [img.shape[0], img.shape[1]]
@@ -84,17 +87,23 @@ def convert(img, a: int, b: int):
     # Sample pixels for each divide_factor.
     # Cb
     Cb_a = Cb_in[::2, ::a_divide_factor]
+    converted_bytes += Cb_a.size
     Cb_a = np.repeat(np.repeat(Cb_a, 1, axis=0), a_divide_factor, axis=1)
     if b_divide_factor != 0: # If "b" is zero.
         Cb_b = Cb_in[1::2, ::b_divide_factor]
+        converted_bytes += Cb_b.size
         Cb_b = np.repeat(np.repeat(Cb_b, 1, axis=0), b_divide_factor, axis=1)
 
     # Cr
     Cr_a = Cr_in[::2, ::a_divide_factor]
+    converted_bytes += Cr_a.size
     Cr_a = np.repeat(np.repeat(Cr_a, 1, axis=0), a_divide_factor, axis=1)
     if b_divide_factor != 0: # If "b" is zero.
         Cr_b = Cr_in[1::2, ::b_divide_factor]
+        converted_bytes += Cr_b.size
         Cr_b = np.repeat(np.repeat(Cr_b, 1, axis=0), b_divide_factor, axis=1)
+    
+    converted_bytes += Y.size
     
     # Upsampling for visualization.
     # If "b" is bigger than zero then we have to interleave a and b samples.
@@ -111,33 +120,45 @@ def convert(img, a: int, b: int):
         Cr = np.repeat(np.repeat(Cr_a, 2, axis=0), 1, axis=1)
 
     # Put all channels into one 3-dimensional array
-    return np.stack([Y, Cb, Cr], axis=2)
+    return (converted_bytes, np.stack([Y, Cb, Cr], axis=2))
 
 if __name__ == "__main__":
-    __img = Image.open("images/sample.png").convert("RGB")
+    __img = Image.open("images/example1.png").convert("RGB")
     # Change this (^) line for other images
     __dummy = np.array(__img) # Convert to numpy array
     #Image.fromarray(np.uint8(__dummy), "RGB").show()
     __converted = RGB2YCbCr.RGB2YCbCr(__dummy) # Convert to Y'CbCr
 
+    print("Original byte size:", __dummy.size)
+
     # Extracted Luma component
-    Y = convert(__converted, 4, 4)[:,:,0]
+    Y = convert(__converted, 4, 4)[1][:,:,0]
     Image.fromarray(np.pad(Y[:,:,newaxis], ((0,0), (0,0), (0,2)), mode="maximum"), "RGB").show()
     sleep(0.2) # needs a little delay inbetween images.
 
     # Chroma scheme J:a:b
     # 4:4:4
-    Image.fromarray(convert(__converted, 4, 4), mode="YCbCr").show()
+    converted = convert(__converted, 4, 4)
+    Image.fromarray(converted[1], mode="YCbCr").show()
+    print("4:4:4 byte size:", converted[0])
     sleep(0.2) # needs a little delay inbetween images.
     # 4:2:2
-    Image.fromarray(convert(__converted, 2, 2), mode="YCbCr").show()
+    converted = convert(__converted, 2, 2)
+    Image.fromarray(converted[1], mode="YCbCr").show()
+    print("4:2:2 byte size:", converted[0])
     sleep(0.2) # needs a little delay inbetween images.
     # 4:2:0
-    Image.fromarray(convert(__converted, 2, 0), mode="YCbCr").show()
+    converted = convert(__converted, 2, 0)
+    Image.fromarray(converted[1], mode="YCbCr").show()
+    print("4:2:0 byte size:", converted[0])
     sleep(0.2) # needs a little delay inbetween images.
     # 4:1:1
-    Image.fromarray(convert(__converted, 1, 1), mode="YCbCr").show()
+    converted = convert(__converted, 1, 1)
+    Image.fromarray(converted[1], mode="YCbCr").show()
+    print("4:1:1 byte size:", converted[0])
     sleep(0.2) # needs a little delay inbetween images.
     # 4:1:0
-    Image.fromarray(convert(__converted, 1, 0), mode="YCbCr").show()
+    converted = convert(__converted, 1, 0)
+    Image.fromarray(converted[1], mode="YCbCr").show()
+    print("4:1:0 byte size:", converted[0])
     sleep(0.2) # needs a little delay inbetween images.
