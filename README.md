@@ -3,6 +3,7 @@ Visible Light
 Physics Performance Task for Electromagnetic Waves.
 
 ### Install requirements
+
 ```console
 pip install -r requirements.txt
 ```
@@ -17,8 +18,9 @@ Files
 Chroma Subsampling
 ==================
 
-WIP:
-Running `chroma_subsampling.py` will convert all images in the `images` folder.
-
-Parameters:
- - `--channels` will output separate images for each colour channel.
+Running `chroma_subsampling.py` will convert the selected image into:
+- 4:4:4
+- 4:2:2
+- 4:2:0
+- 4:1:1
+- 4:1:0

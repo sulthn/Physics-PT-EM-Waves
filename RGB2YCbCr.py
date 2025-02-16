@@ -4,18 +4,16 @@
 """
 
 import numpy as np
-from numpy import newaxis
 from PIL import Image
 
 def RGB2YCbCr(img):
     """Converts RGB to Y'CbCr according to ITU-T T.871
 
     Args:
-        img: 3-dimensional numpy array consisting of H x W and the 3 
-             channels in 8-bits (RGB)
+        img: 3-dimensional numpy array of RGB with shape (H, W, 3)
     
     Returns:
-        3-dimensional numpy array consisting of H x W and Y'CbCr 
+        3-dimensional numpy array of Y'CbCr with shape (H, W, 3) 
         channels
     """
 
@@ -36,7 +34,7 @@ def RGB2YCbCr(img):
 
 if __name__ == '__main__':
     # 3x5 image of random pixels
-    img = np.random.randint(0, 256, size=(5, 3, 3))
-    im = Image.fromarray(np.uint8(img), 'RGB').show()
-    im_rt = RGB2YCbCr(img)
-    Image.fromarray(im_rt, "YCbCr").show()
+    __img = np.random.randint(0, 256, size=(5, 3, 3))
+    Image.fromarray(np.uint8(__img), 'RGB').show()
+    __im_rt = RGB2YCbCr(__img)
+    Image.fromarray(__im_rt, "YCbCr").show()
